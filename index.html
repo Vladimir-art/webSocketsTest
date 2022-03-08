@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Web Socket</title>
+</head>
+<body>
+
+<form id="messageForm">
+  <input type="text" name="name" id="name"/>
+  <input type="text" name="message" id="message"/>
+  <input type="submit" value="send"/>
+</form>
+
+<div id="chat"></div>
+
+<script type="module">
+  const chatEl = document.getElementById("chat");
+  const formEl = document.getElementById("messageForm");
+  const ws = new WebSocket("ws://localhost:8000");
+  ws.onmessage = (msg) => {
+    const messages = JSON.parse(msg.data);
+    messages.forEach((val) => {
+      const messageEl = document.createElement('div');
+      messageEl.appendChild(document.createTextNode(`${val.name}: ${val.message}`));
+      chatEl.appendChild(messageEl);
+    });
+  };
+
+  const send = (event) => {
+    event.preventDefault();
+    const name = document.getElementById("name").value;
+    const message = document.getElementById("message").value;
+    ws.send(JSON.stringify({ name, message }));
+    return false;
+  }
+
+  formEl.addEventListener('submit', send);
+</script>
+</body>
+</html>
